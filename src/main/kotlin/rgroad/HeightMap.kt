@@ -79,7 +79,7 @@ class HeightMap(
 
     private fun getRandomValue(x: Int, y: Int): Float {
         // Uniform [-1, 1]
-        val bitLength = 32
+        val bitLength = 64
         val hash = MessageDigest.getInstance("SHA-256")
         val at = ByteArray((bitLength shr 3) + 1)
         val atValue = BigInteger.valueOf((x.toLong() xor (y.toLong() shl (bitLength shr 1))) xor seed).toByteArray()
