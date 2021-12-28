@@ -2,24 +2,31 @@ package rgroad.world
 
 import rgroad.getSafeSeed
 
-class WorldGenerator (val config: WorldConfig, seed: String?)  {
+class WorldGenerator {
+    val config: WorldConfig
+    private val safeSeed : Long
+    private val _chunks: MutableMap<Pair<Int, Int>, WorldChunkData> = mutableMapOf()
+    private val _seed: String?
 
-    private val chunks: MutableMap<Pair<Int, Int>, WorldChunkData> = mutableMapOf<Pair<Int, Int>, WorldChunkData>()
-    private val safeSeed : Long = getSafeSeed(seed)
-    private val _seed = seed
+    constructor(config: WorldConfig, seed: String?) {
+        this.config = config
+        this.safeSeed = getSafeSeed(seed)
+        this._seed = seed
+    }
+    constructor(config: WorldConfig, seed: Long) {
+        this.config = config
+        this.safeSeed = seed
+        this._seed = null
+    }
+    constructor() : this(defaultWorldConfig, null)
+    constructor(seed: Long) : this(defaultWorldConfig, seed)
+    constructor(config: WorldConfig) : this(config, null)
+
     val seed: String
         get() = _seed ?: String.format("%d", safeSeed)
 
-
-    constructor() : this(defaultWorldConfig, null)
-    constructor(seed: Int) : this(defaultWorldConfig, String.format("%d", seed))
-    constructor(config: WorldConfig) : this(config, null)
-    constructor(config: WorldConfig, seed: Int) : this(config, String.format("%d", seed))
-
-
-    fun getChunks(): MutableMap<Pair<Int, Int>, WorldChunkData> {
-        return chunks
-    }
+    val chunks: Map<Pair<Int, Int>, WorldChunkData>
+        get() = _chunks.toMap()
 
     fun addChunk(x: Int, y: Int) {
         val coordinates = Pair(x, y)
@@ -30,7 +37,7 @@ class WorldGenerator (val config: WorldConfig, seed: String?)  {
         }
         val chunk = WorldChunk(coordinates, config, safeSeed)
         val chunkData = chunk.generate()
-        chunks[coordinates] = chunkData
+        _chunks[coordinates] = chunkData
     }
 }
 

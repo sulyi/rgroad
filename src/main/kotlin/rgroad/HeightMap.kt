@@ -8,9 +8,13 @@ import java.security.MessageDigest
 import kotlin.math.floor
 import kotlin.math.log2
 
-class HeightMap(private val offsetX: Int, private val offsetY: Int, private val config: HeightMapConfig, seed: Long) {
+class HeightMap(
+    private val offsetX: Int,
+    private val offsetY: Int,
+    private val config: HeightMapConfig,
+    private val seed: Long,
+) {
 
-    private val seed: Long = getSafeSeed(seed)
     private val steps: Int = floor(log2(((config.size - 1u).toDouble()))).toInt() + 1
     val size: Int = 1 shl steps
 
