@@ -35,7 +35,7 @@ class WorldGenerator {
             println("Chunk already exists")
             return
         }
-        val chunk = WorldChunk(coordinates, config, safeSeed)
+        val chunk = WorldChunk(x, y, config, safeSeed)
         val chunkData = chunk.generate()
         _chunks[coordinates] = chunkData
     }

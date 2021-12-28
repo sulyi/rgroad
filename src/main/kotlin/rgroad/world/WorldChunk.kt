@@ -2,10 +2,7 @@ package rgroad.world
 
 import rgroad.*
 
-class WorldChunk(coordinates: Pair<Int, Int>, config: WorldConfig, seed: Long) {
-    private val x: Int = coordinates.first
-    private val y: Int = coordinates.second
-    private val seed: Long = getSafeSeed(seed)
+class WorldChunk(private val x: Int, private val y: Int, config: WorldConfig, seed: Long) {
     private val heightMap: HeightMap = HeightMap(
         x, y, HeightMapConfig(
             config.chunkSize,
