@@ -1,6 +1,4 @@
-package rgroad.world
-
-import rgroad.getSafeSeed
+package rgroad
 
 class WorldGenerator {
     val config: WorldConfig

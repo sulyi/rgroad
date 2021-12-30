@@ -1,6 +1,5 @@
-package rgroad.world
+package rgroad
 
-import rgroad.*
 
 class WorldChunk(private val x: Int, private val y: Int, config: WorldConfig, seed: Long) {
     private val heightMap: HeightMap = HeightMap(

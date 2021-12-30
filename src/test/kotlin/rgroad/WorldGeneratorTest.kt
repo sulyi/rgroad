@@ -1,4 +1,4 @@
-package rgroad.world
+package rgroad
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
