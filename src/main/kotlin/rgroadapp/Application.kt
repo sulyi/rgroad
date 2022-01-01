@@ -1,18 +1,19 @@
 package rgroadapp
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.cache.annotation.EnableCaching
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.*
 import rgroad.WorldConfig
-import rgroad.WorldGenerator
 import java.io.ByteArrayOutputStream
 import javax.imageio.ImageIO
 
 @SpringBootApplication
-class RgRoadApplication
+@EnableCaching
+class RgRoadApplication(private val worldRepository: WorldRepository)
 
 @RestController
-class WorldResource {
+class WorldResource(private val worldRepository: WorldRepository) {
     @GetMapping("/world/{seed}/chunks/{x}/{y}")
     @ResponseBody
     fun createChunk(
@@ -24,8 +25,8 @@ class WorldResource {
         @RequestParam("r") roughness: Float,
         model: Model
     ): ByteArray {
-        // TODO create cached repository
-        val world = WorldGenerator(WorldConfig(size, height, roughness), seed)
+
+        val world = worldRepository.getWorld(WorldConfig(size, height, roughness), seed)
         world.addChunk(x, y)
 
         val imageStream = ByteArrayOutputStream()
