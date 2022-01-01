@@ -30,7 +30,7 @@ class WorldResource(private val worldRepository: WorldRepository) {
         world.addChunk(x, y)
 
         val imageStream = ByteArrayOutputStream()
-        ImageIO.write(world.chunks[Pair(x, y)]!!.heightMap, "png", imageStream)
+        ImageIO.write(world.render(bound = listOf(Pair(x, y))), "png", imageStream)
         return imageStream.toByteArray()
     }
 }
