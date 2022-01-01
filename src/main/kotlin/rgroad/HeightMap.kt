@@ -26,60 +26,91 @@ class HeightMap(
         var height = config.height * 127 - 1
         var length = 2
 
-        val data = ByteArray(size * size + 2 * size + 1)
+        val data = IntArray(size * size + 2 * size + 1)
         intArrayOf(0, size, 0, size).zip(
             intArrayOf(0, 0, size, size)
         ).forEach { (x, y) ->
-            data[x + y + y * size] = (127 + height * getRandomValue(x + cx, y + cy)).toInt().toByte()
+            data[x + y + y * size] = (127 + height * getRandomValue(x + cx, y + cy)).toInt()
         }
 
         repeat(steps) {
-            var value: Float
-            var pixel: Double
             height *= config.roughness
             length += length - 1
             subSize = subSize shr 1
+
+            // resize
+            for (i in 1 until length step 2) {
+                val index = i * subSize
+                val conv = index + index * size
+                var value: Float
+                var pixel: Double
+
+                pixel = ((data[index - subSize] + data[index + subSize]) / 2.0)
+                value = getRandomValue(index + cx, cy)
+                pixel += height * value
+                data[index] = if (pixel in 0.0..255.0) pixel.toInt()
+                    else if (pixel < 0) 0 else 255
+
+                pixel = (data[index + size * size + size - subSize] + data[index + size * size + size + subSize]) / 2.0
+                value = getRandomValue(index + cx, size + cy)
+                pixel += height * value
+                data[index + size * size + size] = if (pixel in 0.0..255.0) pixel.toInt()
+                    else if (pixel < 0) 0 else 255
+
+                pixel = (data[conv - subSize - subSize * size] + data[conv +  subSize + subSize * size]) / 2.0
+                value = getRandomValue(cx, index + cy)
+                pixel += height * value
+                data[conv] = if (pixel in 0.0..255.0) pixel.toInt()
+                    else if (pixel < 0) 0 else 255
+
+                pixel = (data[conv - subSize - subSize * size + size] + data[conv +  subSize + subSize * size + size]) / 2.0
+                value = getRandomValue(size + cx, index + cy)
+                pixel += height * value
+                data[conv + size] = if (pixel in 0.0..255.0) pixel.toInt()
+                    else if (pixel < 0) 0 else 255
+            }
 
             // square step
             for (i in 1 until length step 2) {
                 for (j in 1 until length step 2) {
                     val x = i * subSize
                     val y = j * subSize
-                    pixel = intArrayOf(x - subSize, x - subSize, x + subSize, x + subSize).zip(
+                    var pixel = intArrayOf(x - subSize, x - subSize, x + subSize, x + subSize).zip(
                         intArrayOf(y - subSize, y + subSize, y - subSize, y + subSize)
-                    ).map { (a, b) -> data[a + b + b * size].toInt() and 0xFF }.average()
+                    ).map { (a, b) -> data[a + b + b * size] }.average()
 
-                    value = getRandomValue(x + cx, y + cy)
+                    val value = getRandomValue(x + cx, y + cy)
                     pixel += height * value
-                    data[x + y + y * size] = pixel.toInt().toByte()
+                    data[x + y + y * size] = if (pixel in 0.0..255.0) pixel.toInt()
+                        else if (pixel < 0) 0 else 255
                 }
             }
 
             // diamond step
-            for (i in 0 until length) {
-                for (j in ((i and 1) xor 1) until length step 2) {
+            for (i in 1 until length - 1) {
+                for (j in 2 - ((i and 0x1) xor 0x1) until length - 1 step 2) {
                     val x = i * subSize
                     val y = j * subSize
-                    pixel = intArrayOf(x - subSize, x, x, x + subSize).zip(
+                    var pixel = intArrayOf(x - subSize, x, x, x + subSize).zip(
                         intArrayOf(y, y - subSize, y + subSize, y)
-                    ).filter { (a, b) -> a in 0..size && b in 0..size }
-                        .map { (a, b) -> data[a + b + b * size].toInt() and 0xFF }.average()
+                    ).map { (a, b) -> data[a + b + b * size] }.average()
 
-                    value = getRandomValue(i * subSize + cx, j * subSize + cy)
+                    val value = getRandomValue(x + cx, y + cy)
                     pixel += height * value
-                    data[x + y + y * size] = pixel.toInt().toByte()
+                    data[x + y + y * size] = if (pixel in 0.0..255.0) pixel.toInt()
+                        else if (pixel < 0) 0 else 255
                 }
             }
         }
 
         val image = BufferedImage(size + 1, size + 1, BufferedImage.TYPE_BYTE_GRAY)
-        image.raster.setDataElements(0, 0, size + 1, size + 1, data)
+        image.raster.setDataElements(0, 0, size + 1, size + 1, data.map{ pixel -> pixel.toByte() }.toByteArray())
         return image.getSubimage(0, 0, size, size)
     }
 
     private fun getRandomValue(x: Int, y: Int): Float {
         // Uniform [-1, 1]
-        val bitLength = 32
+        val bitLength = 64
         val hash = MessageDigest.getInstance("SHA-256")
         val at = ByteArray((bitLength shr 3) + 1)
         val atValue = BigInteger.valueOf((x.toLong() xor (y.toLong() shl (bitLength shr 1))) xor seed).toByteArray()
