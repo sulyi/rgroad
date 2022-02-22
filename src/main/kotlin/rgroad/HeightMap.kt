@@ -115,7 +115,7 @@ class HeightMap(
         val at = ByteArray((bitLength shr 3) + 1)
         val atValue = BigInteger.valueOf((x.toLong() xor (y.toLong() shl (bitLength shr 1))) xor seed).toByteArray()
         arraycopy(atValue, 0, at, at.size - atValue.size, atValue.size)
-        val minValue = BigInteger(-1, ByteArray(hash.digestLength) { _ -> (0xFF).toByte() }).toBigDecimal()
+        val minValue = BigInteger(-1, ByteArray(hash.digestLength) { (0xFF).toByte() }).toBigDecimal()
         val value = BigInteger(-1, hash.digest(at)).toBigDecimal().divide(minValue, MathContext.DECIMAL64)
         return value.toFloat() * 2 - 1
     }
