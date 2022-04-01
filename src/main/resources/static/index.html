@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RGRoad Application</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+          integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+          crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+            integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+            crossorigin=""></script>
+    <style>
+        #banner { font-size: xxx-large; width: 80%; margin: 0 auto; }
+        #rgroad-viewer { height: 800px; }
+        #app-container {
+            width: 80%;
+            margin: 0 auto;
+        }
+        .tooltip { display: none; }
+    </style>
+</head>
+<body>
+<div id="content">
+    <div id="banner">
+        RGRoad
+    </div>
+    <div id="app-container">
+        <div id="app-controls">
+            <div id="controls-main">
+                <div> seed: <input id="world-seed" class="controls-field" type="text"></div>
+                <div> chunk size: <input id="world-chunk-size" class="controls-field" type="number" value="256"></div>
+                <div>
+                    <button id="world-new">New</button>
+                    <button id="world-regenerate">Regenerate</button>
+                </div>
+                <div id="tooltip-main" class="tooltip">
+                    WIP
+                </div>
+            </div>
+            <div id="controls-advanced">
+                <div> height: <input id="world-height" class="controls-field" type="range"
+                                     min="0" max="1.0" step="any" value="1.0">
+                </div>
+                <div>
+                    roughness: <input id="world-roughness" class="controls-field" type="range"
+                                      min="0.0" max="1.0" step="any" value="0.5">
+                </div>
+                <div> <input id="world-add-origin" class="controls-checkbox" type="checkbox" checked> Add origin </div>
+            </div>
+            <div id="controls-add-chunk">
+                <div> x: <input id="world-add-chunk-x" class="controls-field" type="number"></div>
+                <div> y: <input id="world-add-chunk-y" class="controls-field" type="number"></div>
+                <div> <button id="add-chunk">Add</button> </div>
+                <div id="tooltip-add-chunk" class="tooltip">
+                    WIP
+                </div>
+            </div>
+        </div>
+
+        <div id="rgroad-viewer"></div>
+        <script type="text/javascript">
+                var seed = document.getElementById("world-seed").value;
+                seed = seed ? seed : "random";
+                /* TODO force positive */
+                var size = document.getElementById("world-chunk-size").value;
+
+                var origin = document.getElementById("world-add-origin").value ? [size / 2, size / 2] : [0, 0];
+
+                var height = document.getElementById("world-height").value;
+                var roughness = document.getElementById("world-roughness").value;
+
+                var map = L.map('rgroad-viewer',
+                                { zoomControl: false,
+                                  minZoom: 0,
+                                  maxZoom: 0,
+                                  crs: L.CRS.Simple }
+                          ).setView(origin, 0);
+                L.tileLayer('/world/{seed}/chunks/{x}/{y}?s={tileSize}&h={height}&r={roughness}',
+                            { attribution: 'RGRoad',
+                              id: 'rgroad',
+                              seed: seed,
+                              tileSize: size,
+                              height: height,
+                              roughness: roughness }
+                ).addTo(map);
+
+
+
+        </script>
+    </div>
+</div>
+</body>
+</html>
